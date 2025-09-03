@@ -1,0 +1,149 @@
+# MUHCS Ledger - Interactive Receipt & Payment Report with Excel & PDF Export
+# Author: nghinglo-cloud
+
+import openpyxl
+from openpyxl.styles import Font, Alignment
+from reportlab.lib.pagesizes import A4
+from reportlab.pdfgen import canvas
+
+receipts = []
+payments = []
+
+def add_receipt():
+    head = input("Enter Receipt Head: ")
+    amount = float(input("Enter Amount (₹): "))
+    remarks = input("Remarks: ")
+    receipts.append({"head": head, "amount": amount, "remarks": remarks})
+
+def add_payment():
+    head = input("Enter Payment Head: ")
+    amount = float(input("Enter Amount (₹): "))
+    remarks = input("Remarks: ")
+    payments.append({"head": head, "amount": amount, "remarks": remarks})
+
+def generate_report():
+    print("\nGenerating Report...\n")
+
+    total_receipts = sum(r["amount"] for r in receipts)
+    total_payments = sum(p["amount"] for p in payments)
+    balance = total_receipts - total_payments
+
+    # ========== PRINT ON SCREEN ==========
+    print("="*60)
+    print(" RECEIPT & PAYMENT REPORT - MUHCS")
+    print("="*60)
+
+    print("\n--- RECEIPTS ---")
+    for r in receipts:
+        print(f"{r['head']:35} ₹{r['amount']:,}   {r['remarks']}")
+    print(f"{'Total Receipts':35} ₹{total_receipts:,}")
+
+    print("\n--- PAYMENTS ---")
+    for p in payments:
+        print(f"{p['head']:35} ₹{p['amount']:,}   {p['remarks']}")
+    print(f"{'Total Payments':35} ₹{total_payments:,}")
+
+    print("\n--- BALANCE ---")
+    print(f"{'Closing Balance':35} ₹{balance:,}")
+    print("="*60 + "\n")
+
+    # ========== SAVE TO EXCEL ==========
+    wb = openpyxl.Workbook()
+    ws = wb.active
+    ws.title = "Receipt & Payment Report"
+
+    ws.merge_cells("A1:C1")
+    ws["A1"] = "MUHCS - Receipt & Payment Report"
+    ws["A1"].font = Font(size=14, bold=True)
+    ws["A1"].alignment = Alignment(horizontal="center")
+
+    row = 3
+    ws["A" + str(row)] = "RECEIPTS"
+    ws["A" + str(row)].font = Font(bold=True)
+
+    row += 1
+    for r in receipts:
+        ws.append([r["head"], r["amount"], r["remarks"]])
+    ws.append(["Total Receipts", total_receipts, ""])
+
+    row = ws.max_row + 2
+    ws["A" + str(row)] = "PAYMENTS"
+    ws["A" + str(row)].font = Font(bold=True)
+
+    row += 1
+    for p in payments:
+        ws.append([p["head"], p["amount"], p["remarks"]])
+    ws.append(["Total Payments", total_payments, ""])
+
+    row = ws.max_row + 2
+    ws["A" + str(row)] = "Closing Balance"
+    ws["B" + str(row)] = balance
+
+    excel_file = "MUHCS_Receipt_Payment_Report.xlsx"
+    wb.save(excel_file)
+    print(f"✅ Report saved as {excel_file}")
+
+    # ========== SAVE TO PDF ==========
+    pdf_file = "MUHCS_Receipt_Payment_Report.pdf"
+    c = canvas.Canvas(pdf_file, pagesize=A4)
+    width, height = A4
+
+    c.setFont("Helvetica-Bold", 14)
+    c.drawCentredString(width/2, height-50, "MUHCS - Receipt & Payment Report")
+
+    y = height - 100
+    c.setFont("Helvetica-Bold", 12)
+    c.drawString(50, y, "RECEIPTS")
+    y -= 20
+
+    c.setFont("Helvetica", 10)
+    for r in receipts:
+        c.drawString(50, y, r["head"])
+        c.drawRightString(400, y, f"₹{r['amount']:,}")
+        c.drawString(420, y, r["remarks"])
+        y -= 15
+    c.drawString(50, y, f"Total Receipts: ₹{total_receipts:,}")
+    y -= 30
+
+    c.setFont("Helvetica-Bold", 12)
+    c.drawString(50, y, "PAYMENTS")
+    y -= 20
+
+    c.setFont("Helvetica", 10)
+    for p in payments:
+        c.drawString(50, y, p["head"])
+        c.drawRightString(400, y, f"₹{p['amount']:,}")
+        c.drawString(420, y, p["remarks"])
+        y -= 15
+    c.drawString(50, y, f"Total Payments: ₹{total_payments:,}")
+    y -= 30
+
+    c.setFont("Helvetica-Bold", 12)
+    c.drawString(50, y, f"Closing Balance: ₹{balance:,}")
+
+    c.save()
+    print(f"✅ Report also saved as {pdf_file}\n")
+
+# ============================
+# MAIN MENU
+# ============================
+while True:
+    print("\nMUHCS Ledger Menu:")
+    print("1. Add Receipt")
+    print("2. Add Payment")
+    print("3. Generate Report (Excel + PDF)")
+    print("4. Exit")
+
+    choice = input("Choose an option: ")
+
+    if choice == "1":
+        add_receipt()
+    elif choice == "2":
+        add_payment()
+    elif choice == "3":
+        generate_report()
+    elif choice == "4":
+        print("Exiting... Thank you!")
+        break
+    else:
+        print("Invalid choice. Please try again.")
