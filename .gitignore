@@ -1,1 +1,36 @@
+# Python cache files
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+*.pdb
+*.egg-info/
+
+# Virtual environment
+venv/
+ENV/
+env/
+.venv/
+
+# SQLite database (optional: keep if you want to share sample DB)
+*.db
+*.sqlite3
+
+# Logs and temp files
+*.log
+*.tmp
+*.bak
+
+# Config and secrets
+*.env
+config.json
+
+# IDE / Editor settings
+.vscode/
+.idea/
+*.swp
+
+# OS generated files
+.DS_Store
+Thumbs.db
 
