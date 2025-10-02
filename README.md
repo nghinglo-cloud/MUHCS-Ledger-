@@ -12,7 +12,7 @@ This project is part of the MUHCS (Mizoram Universal Health Coverage Scheme) cas
 - Uses **SQLite database** for local storage.
 - Lightweight **Flask-based web application** (Python).
 - Easy to deploy and extend for other schemes.
-
+-
 ---
 
 ## 📂 Project Structure
